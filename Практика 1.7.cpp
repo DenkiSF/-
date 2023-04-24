@@ -14,7 +14,7 @@ struct Date
 	unsigned short year;
 };
 
-struct Data
+struct Record
 {
 	char type[15];
 	char route[8];
@@ -83,106 +83,106 @@ void print_date(unsigned short day, unsigned short month, unsigned short year)
 }
 
 
-void prints(struct Data* data)
-{	
+void prints(struct Record* record)
+{
 	for (int i = 0; i < 3; i++)
 	{
-		cout << "|"; cout.fill(' '); cout.width(14); cout << left << data[i].type;
-		cout << "|"; cout.width(7); cout << left << data[i].route;
-		cout << "|"; cout.width(27); cout << left << data[i].distance;
-		cout << "|"; cout.width(20); cout << left << data[i].time;
-		cout << "|"; print_date(data[i].date.day, data[i].date.month, data[i].date.year);
+		cout << "|"; cout.fill(' '); cout.width(14); cout << left << record[i].type;
+		cout << "|"; cout.width(7); cout << left << record[i].route;
+		cout << "|"; cout.width(27); cout << left << record[i].distance;
+		cout << "|"; cout.width(20); cout << left << record[i].time;
+		cout << "|"; print_date(record[i].date.day, record[i].date.month, record[i].date.year);
 		cout << "|" << endl;
 		draw_mline();
 	}
 }
 
-void replace(Data* data)
-{	
+void replace(Record* record)
+{
 	int pos_min_distance;
 	int pos_max_distance;
 	int pos_min_time;
 	int pos_max_time;
-	
-	min_distance = data[0].distance;
+
+	min_distance = record[0].distance;
 	for (int i = 1; i < 3; i++)
 	{
-		if (min_distance > data[i].distance)
+		if (min_distance > record[i].distance)
 		{
-			min_distance = data[i].distance;
+			min_distance = record[i].distance;
 			pos_min_distance = i;
 		}
 	}
-	
-	max_distance = data[0].distance;
+
+	max_distance = record[0].distance;
 	for (int i = 1; i < 3; i++)
 	{
-		if (max_distance < data[i].distance)
+		if (max_distance < record[i].distance)
 		{
-			max_distance = data[i].distance;
+			max_distance = record[i].distance;
 			pos_max_distance = i;
 		}
 	}
 
-	min_time = data[0].time;
+	min_time = record[0].time;
 	for (int i = 1; i < 3; i++)
 	{
-		if (min_time > data[i].time)
+		if (min_time > record[i].time)
 		{
-			min_time = data[i].time;
+			min_time = record[i].time;
 			pos_min_time = i;
 		}
 	}
 
-	max_time = data[0].time;
+	max_time = record[0].time;
 	for (int i = 1; i < 3; i++)
 	{
-		if (max_time < data[i].time)
+		if (max_time < record[i].time)
 		{
-			max_time = data[i].time;
+			max_time = record[i].time;
 			pos_max_time = i;
 		}
 	}
 
-	data[pos_min_distance].distance = max_distance;
-	data[pos_max_distance].distance = min_distance;
-	data[pos_min_time].time = max_time;
-	data[pos_max_time].time = min_time;
+	record[pos_min_distance].distance = max_distance;
+	record[pos_max_distance].distance = min_distance;
+	record[pos_min_time].time = max_time;
+	record[pos_max_time].time = min_time;
 }
 
 int main()
 {
 	setlocale(LC_ALL, "Russian");
 
-	struct Data data[3];
+	struct Record record[3];
 
 	cout << "Изначальная таблица из практики №0:" << endl;
 	cout << endl;
 
-	data[0] = { "Тр.", "12", 27.55, 75, {11,4,2023} };
-	data[1] = { "Т-с", "17", 13.6, 57, {12,4,2023} };
-	data[2] = { "А", "12а", 57.3, 117, {11,5,2023} };
+	record[0] = { "Тр.", "12", 27.55, 75, {11,4,2023} };
+	record[1] = { "Т-с", "17", 13.6, 57, {12,4,2023} };
+	record[2] = { "А", "12а", 57.3, 117, {11,5,2023} };
 
 	header();
 
 	categories();
 
-	prints(data);
+	prints(record);
 
 	note();
-	
+
 	cout << endl;
 
 	cout << "Таблица с заменёнными местами значениями:" << endl;
 	cout << endl;
 
-	replace(data);
+	replace(record);
 
 	header();
 
 	categories();
 
-	prints(data);
+	prints(record);
 
 	note();
 }
