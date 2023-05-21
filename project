@@ -1,0 +1,61 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <string>
+#include <fstream>
+#include <locale>
+
+using namespace std;
+
+struct Param
+{
+    string code, key, encrypted_message;
+};
+
+void clear(string _data = "") {
+    string data;
+    system("cls");
+    data = _data;
+    cout << data;
+}
+
+int main() {
+    Param p;
+    setlocale(LC_ALL, "Russian");
+    cout << "Введите ключ: \n";
+    cin >> p.key;
+    clear();
+
+    srand(time(NULL));
+
+    for (int i = 0; i < 8; i++) {
+        int random_number = rand() % 36;
+        char random_char;
+
+        if (random_number < 10) {
+            random_char = '0' + random_number;
+        }
+        else {
+            random_char = 'A' + random_number - 10;
+        }
+
+        p.code += random_char;
+    }
+    cout << "Код активации: " << p.code << endl;
+
+    for (int i = 0; i < p.code.length(); i++) {
+        char encrypted_char = p.code[i] ^ p.key[i % p.key.length()];
+        p.encrypted_message += encrypted_char;
+    }
+    cout << "Зашифрованное сообщение: " << p.encrypted_message << endl;
+
+    ofstream outfile("encrypted.bin", ios::out | ios::binary);
+    if (!outfile) {
+        cerr << "Ошибка открытия файла!" << endl;
+        return 1;
+    }
+
+    outfile.write(p.encrypted_message.c_str(), p.encrypted_message.length());
+
+    outfile.close();
+}
