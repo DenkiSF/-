@@ -22,40 +22,96 @@ void clear(string _data = "") {
 int main() {
     Param p;
     setlocale(LC_ALL, "Russian");
-    cout << "Введите ключ: \n";
-    cin >> p.key;
-    clear();
-
     srand(time(NULL));
 
-    for (int i = 0; i < 8; i++) {
-        int random_number = rand() % 36;
-        char random_char;
+    cout << "Ожидание запроса аутентификации..." << endl;
 
-        if (random_number < 10) {
-            random_char = '0' + random_number;
+    int check = 0;
+    while (check == 0)
+    {
+        ifstream checkfile("C:\\Users\\denki\\Desktop\\encrypted.bin", ios::binary);
+        checkfile.seekg(0, ios::end);
+        if (checkfile.tellg() != 0) {
+            check++;
         }
-        else {
-            random_char = 'A' + random_number - 10;
-        }
 
-        p.code += random_char;
     }
-    cout << "Код активации: " << p.code << endl;
+    clear();
+    check = 0;
 
-    for (int i = 0; i < p.code.length(); i++) {
-        char encrypted_char = p.code[i] ^ p.key[i % p.key.length()];
-        p.encrypted_message += encrypted_char;
-    }
-    cout << "Зашифрованное сообщение: " << p.encrypted_message << endl;
+    ifstream file("C:\\Users\\denki\\Desktop\\encrypted.bin", ios::binary); // получение ключа шифрования
 
-    ofstream outfile("encrypted.bin", ios::out | ios::binary);
-    if (!outfile) {
-        cerr << "Ошибка открытия файла!" << endl;
+    if (!file)
+    {
+        cout << "Ошибка открытия файла!" << endl;
         return 1;
     }
 
-    outfile.write(p.encrypted_message.c_str(), p.encrypted_message.length());
+    file.seekg(0, ios::end);
+    int size = file.tellg();
+    file.seekg(0, ios::beg);
 
-    outfile.close();
+    char* buffer = new char[size];
+
+    file.read(buffer, size);
+
+    file.close();
+
+    string key(buffer, size);
+
+    delete[] buffer;
+
+    ofstream clearfile("C:\\Users\\denki\\Desktop\\encrypted.bin", ios::trunc); // очистка файла 
+    int exit = 0;
+
+    while (exit == 0)
+    {
+        p.encrypted_message.clear();
+        p.code.clear();
+
+        for (int i = 0; i < 8; i++) {  //генерация кода активации
+            int random_number = rand() % 36;
+            char random_char;
+
+            if (random_number < 10) {
+                random_char = '0' + random_number;
+            }
+            else {
+                random_char = 'A' + random_number - 10;
+            }
+
+            p.code += random_char;
+        }
+        clear();
+        cout << "Код активации: " << p.code << endl;
+
+        for (int i = 0; i < p.code.length(); i++) { //шифрование кода активации 
+            char encrypted_char = p.code[i] ^ key[i % key.length()];
+            p.encrypted_message += encrypted_char;
+        }
+
+        ofstream outfile("C:\\Users\\denki\\Desktop\\encrypted.bin", ios::out | ios::binary); //запись кода активации
+        if (!outfile) {
+            cerr << "Ошибка открытия файла!" << endl;
+            return 1;
+        }
+
+        outfile.write(p.encrypted_message.c_str(), p.encrypted_message.length());
+
+        outfile.close();
+
+        time_t now = time(NULL);
+        while (time(NULL) - now <= 10) {} // таймер
+
+        ifstream check2file("C:\\Users\\denki\\Desktop\\encrypted.bin", ios::binary);
+        check2file.seekg(0, ios::end);
+        if (check2file.tellg() == 0) {
+            exit++;
+        }
+
+        ofstream clearfile("C:\\Users\\denki\\Desktop\\encrypted.bin", ios::trunc);
+        
+    }
+    ofstream clear2file("C:\\Users\\denki\\Desktop\\encrypted.bin", ios::trunc);
+    return 0;
 }
