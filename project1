@@ -1,0 +1,101 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <string>
+#include <fstream>
+#include <locale>
+
+using namespace std;
+
+struct Param
+{
+    string code, key, encrypted_message;
+};
+
+void clear(string _data = "") {
+    string data;
+    system("cls");
+    data = _data;
+    cout << data;
+}
+
+int main()
+{
+    ofstream clear3file("C:\\Users\\denki\\Desktop\\encrypted.bin", ios::trunc);
+    setlocale(LC_ALL, "Russian");
+
+    Param p;
+
+    srand(time(NULL));
+
+    for (int i = 0; i < 4; i++) {
+        int random_number = rand() % 36;
+        char random_char;
+
+        if (random_number < 10) {
+            random_char = '0' + random_number;
+        }
+        else {
+            random_char = 'A' + random_number - 10;
+        }
+
+        p.key += random_char;
+    }
+
+    ofstream outfile("C:\\Users\\denki\\Desktop\\encrypted.bin", ios::out | ios::binary);
+    if (!outfile) {
+        cerr << "Ошибка открытия файла!" << endl;
+        return 1;
+    }
+    outfile.write(p.key.c_str(), p.key.length());
+    outfile.close();
+
+    m1:cout << "Введите код доступа:" << endl;
+    string kcode;
+    cin >> kcode;
+    clear();
+
+    ifstream file("C:\\Users\\denki\\Desktop\\encrypted.bin", ios::binary);
+
+    if (!file)
+    {
+        cout << "Ошибка открытия файла!" << endl;
+        return 1;
+    }
+
+    file.seekg(0, ios::end);
+    int size = file.tellg();
+    file.seekg(0, ios::beg);
+
+    char* buffer = new char[size];
+
+    file.read(buffer, size);
+
+    string encrypted(buffer, size);
+
+    file.close();
+
+    delete[] buffer;
+
+    ofstream clearfile("C:\\Users\\denki\\Desktop\\encrypted.bin", ios::trunc);
+
+    for (int i = 0; i < encrypted.length(); i++)
+    {
+        char decrypted_char = encrypted[i] ^ p.key[i % p.key.length()];
+
+        p.code += decrypted_char;
+    }
+
+    if (kcode == p.code)
+    {
+        cout << "Доступ разрешён !";
+        ofstream clear2file("C:\\Users\\denki\\Desktop\\encrypted.bin", ios::trunc);
+    }
+    else
+    {
+        cout << "Код доступа неверен !\n";
+        goto m1;
+    }
+    return 0;
+}
+
